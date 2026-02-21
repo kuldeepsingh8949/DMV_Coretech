@@ -8,16 +8,10 @@ from prophet import Prophet
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error
 
-# -----------------------------
-# Page Config
-# -----------------------------
 st.set_page_config(page_title="Walmart Market Trend Dashboard", layout="wide")
 
-st.title("📊 Walmart Sales Trend & Forecast Dashboard")
+st.title(" Walmart Sales Trend & Forecast Dashboard")
 
-# -----------------------------
-# Load Data
-# -----------------------------
 @st.cache_data
 def load_data():
     df = pd.read_csv("Walmart.csv")
@@ -26,9 +20,6 @@ def load_data():
 
 df = load_data()
 
-# -----------------------------
-# Sidebar Filters
-# -----------------------------
 st.sidebar.header("Filter Options")
 
 store_option = st.sidebar.selectbox(
@@ -39,9 +30,6 @@ store_option = st.sidebar.selectbox(
 if store_option != "All":
     df = df[df['Store'] == store_option]
 
-# -----------------------------
-# KPI Section
-# -----------------------------
 total_sales = df['Weekly_Sales'].sum()
 avg_sales = df['Weekly_Sales'].mean()
 max_store = df.groupby('Store')['Weekly_Sales'].sum().idxmax()
@@ -52,10 +40,7 @@ col1.metric("Total Sales", f"${total_sales:,.0f}")
 col2.metric("Average Weekly Sales", f"${avg_sales:,.0f}")
 col3.metric("Best Performing Store", max_store)
 
-# -----------------------------
-# Sales Trend
-# -----------------------------
-st.subheader("📈 Sales Trend Over Time")
+st.subheader("Sales Trend Over Time")
 
 trend_data = df.groupby('Date')['Weekly_Sales'].sum()
 
@@ -66,27 +51,18 @@ plt.ylabel("Sales")
 plt.title("Weekly Sales Trend")
 st.pyplot(fig1)
 
-# -----------------------------
-# Holiday Impact
-# -----------------------------
-st.subheader("🎄 Holiday vs Non-Holiday Sales")
+st.subheader("Holiday vs Non-Holiday Sales")
 
 fig2 = plt.figure()
 sns.boxplot(x='Holiday_Flag', y='Weekly_Sales', data=df)
 st.pyplot(fig2)
 
-# -----------------------------
-# Correlation Heatmap
-# -----------------------------
-st.subheader("🔥 Correlation Heatmap")
+st.subheader("Correlation Heatmap")
 
 fig3 = plt.figure()
 sns.heatmap(df.corr(), annot=True)
 st.pyplot(fig3)
 
-# -----------------------------
-# Feature Engineering for ML
-# -----------------------------
 df['Year'] = df['Date'].dt.year
 df['Month'] = df['Date'].dt.month
 df['Week'] = df['Date'].dt.isocalendar().week
@@ -96,10 +72,7 @@ df['Rolling_Mean_4'] = df['Weekly_Sales'].rolling(4).mean()
 
 df = df.dropna()
 
-# -----------------------------
-# XGBoost Forecast
-# -----------------------------
-st.subheader("🤖 XGBoost Forecast")
+st.subheader("XGBoost Forecast")
 
 features = ['Store', 'Holiday_Flag', 'Temperature',
             'Fuel_Price', 'CPI', 'Unemployment',
@@ -128,10 +101,7 @@ plt.legend()
 plt.title("XGBoost Forecast vs Actual")
 st.pyplot(fig4)
 
-# -----------------------------
-# Prophet Forecast
-# -----------------------------
-st.subheader("🔮 Prophet Future Forecast (Next 12 Weeks)")
+st.subheader("Prophet Future Forecast (Next 12 Weeks)")
 
 prophet_df = df.groupby('Date')['Weekly_Sales'].sum().reset_index()
 prophet_df.columns = ['ds', 'y']
@@ -145,4 +115,4 @@ forecast = model_prophet.predict(future)
 fig5 = model_prophet.plot(forecast)
 st.pyplot(fig5)
 
-st.success("Dashboard Successfully Loaded 🚀")
+st.success("Dashboard Successfully Loaded with Walmart Sales Analysis and Forecasting!")
